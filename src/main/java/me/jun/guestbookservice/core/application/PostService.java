@@ -5,7 +5,7 @@ import me.jun.guestbookservice.core.application.dto.CreatePostRequest;
 import me.jun.guestbookservice.core.application.dto.PostResponse;
 import me.jun.guestbookservice.core.application.dto.RetrievePostRequest;
 import me.jun.guestbookservice.core.domain.Post;
-import me.jun.guestbookservice.core.domain.PostRepository;
+import me.jun.guestbookservice.core.domain.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 public class PostService {
 
     private final PostRepository postRepository;
-
 
     public Mono<PostResponse> createPost(Mono<CreatePostRequest> requestMono) {
         return requestMono.map(CreatePostRequest::toEntity)
