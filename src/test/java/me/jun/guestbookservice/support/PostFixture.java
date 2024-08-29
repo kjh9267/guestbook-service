@@ -2,6 +2,9 @@ package me.jun.guestbookservice.support;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import me.jun.guestbookservice.core.application.dto.CreatePostRequest;
+import me.jun.guestbookservice.core.application.dto.PostResponse;
+import me.jun.guestbookservice.core.application.dto.RetrievePostRequest;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.PostInfo;
 
@@ -40,6 +43,24 @@ abstract public class PostFixture {
                 .writerId(WRITER_ID)
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
+                .build();
+    }
+
+    public static PostResponse postResponse() {
+        return PostResponse.of(post());
+    }
+
+    public static CreatePostRequest createPostRequest() {
+        return CreatePostRequest.builder()
+                .title(TITLE)
+                .content(CONTENT)
+                .writerId(WRITER_ID)
+                .build();
+    }
+
+    public static RetrievePostRequest retrievePostRequest() {
+        return RetrievePostRequest.builder()
+                .id(POST_ID)
                 .build();
     }
 }
