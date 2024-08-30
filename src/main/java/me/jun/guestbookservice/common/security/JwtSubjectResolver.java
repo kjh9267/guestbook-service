@@ -1,6 +1,7 @@
 package me.jun.guestbookservice.common.security;
 
 import lombok.RequiredArgsConstructor;
+import me.jun.guestbookservice.core.application.WriterService;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.BindingContext;
@@ -15,6 +16,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
 
     private final JwtProvider jwtProvider;
+
+    private final WriterService writerServiceImpl;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -31,6 +34,6 @@ public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
         jwtProvider.validateToken(token);
         String email = jwtProvider.extractSubject(token);
 
-        return Mono.just(email);
+        return writerServiceImpl.retrieveWriterIdByEmail(email);
     }
 }

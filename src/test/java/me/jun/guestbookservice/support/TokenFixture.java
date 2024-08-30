@@ -1,4 +1,4 @@
-package me.jun.guestbookservice.common.security;
+package me.jun.guestbookservice.support;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
