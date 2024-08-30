@@ -1,9 +1,7 @@
 package me.jun.guestbookservice.core.application;
 
 import lombok.RequiredArgsConstructor;
-import me.jun.guestbookservice.core.application.dto.CreatePostRequest;
-import me.jun.guestbookservice.core.application.dto.PostResponse;
-import me.jun.guestbookservice.core.application.dto.RetrievePostRequest;
+import me.jun.guestbookservice.core.application.dto.*;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.repository.PostRepository;
 import org.springframework.stereotype.Service;
@@ -29,5 +27,19 @@ public class PostService {
                             .orElse(Post.builder().build())
                 )
                 .map(PostResponse::of);
+    }
+
+    public Mono<PostResponse> updatePost(Mono<UpdatePostRequest> requestMono) {
+        return requestMono.map(request -> postRepository.findById(request.getId())
+                .map(post -> post.updateTitle(request.getTitle()))
+                .map(post -> post.updateContent(request.getContent()))
+                .orElse(Post.builder().build())
+        )
+                .map(PostResponse::of);
+    }
+
+    public Mono<Void> deletePost(Mono<DeletePostRequest> requestMono) {
+        return requestMono.doOnNext(request -> postRepository.deleteById(request.getId()))
+                .flatMap(request -> Mono.empty());
     }
 }

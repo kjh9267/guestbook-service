@@ -15,6 +15,8 @@ import static me.jun.guestbookservice.support.PostFixture.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("deprecation")
@@ -62,5 +64,41 @@ public class PostServiceTest {
 
         assertThat(postService.retrievePost(Mono.just(retrievePostRequest())).block())
                 .isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    void updatePostTest() {
+        PostResponse expected = updatedPostResponse();
+
+        given(postRepository.findById(any()))
+                .willReturn(Optional.of(updatedPost()));
+
+        assertThat(postService.updatePost(Mono.just(updatePostRequest())).block())
+                .isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    void updatePostFailTest() {
+        PostResponse expected = PostResponse.builder()
+                .build();
+
+        given(postRepository.findById(any()))
+                .willReturn(Optional.empty());
+
+        assertThat(postService.updatePost(Mono.just(updatePostRequest())).block())
+                .isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    void deletePostTest() {
+        doNothing()
+                .when(postRepository)
+                .deleteById(any());
+
+        postService.deletePost(Mono.just(deletePostRequest()))
+                .block();
+
+        verify(postRepository)
+                .deleteById(deletePostRequest().getId());
     }
 }
