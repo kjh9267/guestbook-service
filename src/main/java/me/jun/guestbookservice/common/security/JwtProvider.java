@@ -17,18 +17,14 @@ public class JwtProvider {
     }
 
     public String extractSubject(String token) {
-        return jwtParser()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public void validateToken(String token) {
         try {
-            jwtParser().parseClaimsJws(token);
+            return jwtParser()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
         }
         catch (Exception e) {
-            throw new InvalidTokenException(token);
+            throw InvalidTokenException.of(token);
         }
     }
 

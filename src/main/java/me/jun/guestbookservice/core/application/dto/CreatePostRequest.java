@@ -9,7 +9,7 @@ import me.jun.guestbookservice.core.domain.PostInfo;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Builder(toBuilder = true)
 @Getter
 public class CreatePostRequest {
 
@@ -19,8 +19,6 @@ public class CreatePostRequest {
     @NotBlank
     private String content;
 
-    @NotNull
-    @Positive
     private Long writerId;
 
     public Post toEntity() {

@@ -1,6 +1,8 @@
 package me.jun.guestbookservice.common.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import me.jun.guestbookservice.common.security.exception.InvalidTokenException;
 import me.jun.guestbookservice.core.application.WriterService;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
@@ -26,14 +29,25 @@ public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Mono<Object> resolveArgument(MethodParameter parameter, BindingContext bindingContext, ServerWebExchange exchange) {
-        String token = exchange.getRequest()
-                .getHeaders()
-                .get(AUTHORIZATION)
-                .get(0);
+        String token;
 
-        jwtProvider.validateToken(token);
-        String email = jwtProvider.extractSubject(token);
+        try {
+            token = exchange.getRequest()
+                    .getHeaders()
+                    .get(AUTHORIZATION)
+                    .get(0);
+        }
+        catch (Exception e) {
+            throw InvalidTokenException.of(e.getMessage());
+        }
 
-        return writerServiceImpl.retrieveWriterIdByEmail(email);
+        return Mono.fromSupplier(() -> jwtProvider.extractSubject(token))
+                .log()
+                .flatMap(
+                        email -> writerServiceImpl.retrieveWriterIdByEmail(email)
+                                .log()
+                                .doOnError(throwable -> log.info("{}", throwable))
+                )
+                .doOnError(throwable -> log.info("{}", throwable));
     }
 }
