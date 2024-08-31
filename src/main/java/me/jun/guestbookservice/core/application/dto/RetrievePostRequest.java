@@ -13,4 +13,10 @@ public class RetrievePostRequest {
     @NotNull
     @Positive
     private Long id;
+
+    public static RetrievePostRequest of(Long postId) {
+        return RetrievePostRequest.builder()
+                .id(postId)
+                .build();
+    }
 }

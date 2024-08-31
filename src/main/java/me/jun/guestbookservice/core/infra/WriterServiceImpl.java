@@ -1,11 +1,13 @@
 package me.jun.guestbookservice.core.infra;
 
+import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.core.application.WriterService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class WriterServiceImpl implements WriterService {
 
@@ -23,6 +25,8 @@ public class WriterServiceImpl implements WriterService {
         return writerWebClient.get()
                 .uri(writerUri + "/" + email)
                 .retrieve()
-                .bodyToMono(Object.class);
+                .bodyToMono(Object.class)
+                .log()
+                .doOnError(throwable -> log.info("{}", throwable));
     }
 }

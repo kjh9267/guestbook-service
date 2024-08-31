@@ -1,8 +1,13 @@
 package me.jun.guestbookservice.common.security.exception;
 
-public class InvalidTokenException extends RuntimeException {
+import me.jun.guestbookservice.support.exception.BusinessException;
+
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
+public class InvalidTokenException extends BusinessException {
 
     public InvalidTokenException(String token) {
         super(token);
+        status = UNAUTHORIZED;
     }
 }
