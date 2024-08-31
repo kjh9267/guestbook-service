@@ -1,6 +1,8 @@
 package me.jun.guestbookservice.core.presentation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jun.guestbookservice.core.application.PostService;
+import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -26,6 +28,9 @@ public class PostControllerTest {
     @MockBean
     private PostService postService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     void retrievePostTest() {
         given(postService.retrievePost(any()))
@@ -43,6 +48,20 @@ public class PostControllerTest {
                 .jsonPath("writerId").exists()
                 .jsonPath("createdAt").exists()
                 .jsonPath("updatedAt").exists()
+                .consumeWith(System.out::println);
+    }
+
+    @Test
+    void retrievePostFailTest() {
+        given(postService.retrievePost(any()))
+                .willThrow(PostNotFoundException.of("1"));
+
+        webTestClient.get()
+                .uri("/api/posts/1")
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().is4xxClientError()
+                .expectBody().jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 }

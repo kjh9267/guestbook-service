@@ -30,7 +30,7 @@ public class PostService {
                 .map(request -> request.getId())
                 .map(
                         id -> postRepository.findById(id)
-                                .orElseThrow(() -> new PostNotFoundException(String.valueOf(id)))
+                                .orElseThrow(() -> PostNotFoundException.of(String.valueOf(id)))
                 )
                 .map(PostResponse::of)
                 .doOnError(throwable -> log.info("{}", throwable));
@@ -42,7 +42,7 @@ public class PostService {
                         request -> postRepository.findById(request.getId())
                                 .map(post -> post.updateTitle(request.getTitle()))
                                 .map(post -> post.updateContent(request.getContent()))
-                                .orElseThrow(() -> new PostNotFoundException(String.valueOf(request.getId())))
+                                .orElseThrow(() -> PostNotFoundException.of(String.valueOf(request.getId())))
         )
                 .map(PostResponse::of)
                 .doOnError(throwable -> log.info("", throwable));
