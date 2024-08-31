@@ -4,8 +4,11 @@ import me.jun.guestbookservice.support.exception.BusinessException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestControllerAdvice
@@ -16,6 +19,17 @@ public class GlobalExceptionHandler {
         return Mono.fromSupplier(
                 () -> ErrorResponse.builder(e, e.getStatus(), e.getMessage())
                             .build()
+        );
+    }
+
+    @ExceptionHandler({
+            ServerWebInputException.class,
+            ResponseStatusException.class
+    })
+    public Mono<ErrorResponse> bindExceptionHandler(Exception e) {
+        return Mono.fromSupplier(
+                () -> ErrorResponse.builder(e, BAD_REQUEST, e.getMessage())
+                        .build()
         );
     }
 

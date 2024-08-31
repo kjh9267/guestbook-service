@@ -13,8 +13,6 @@ import me.jun.guestbookservice.core.domain.PostInfo;
 @Getter
 public class UpdatePostRequest {
 
-    @NotNull
-    @Positive
     private Long id;
 
     @NotBlank
@@ -22,16 +20,4 @@ public class UpdatePostRequest {
 
     @NotBlank
     private String content;
-
-    public Post toEntity() {
-        PostInfo postInfo = PostInfo.builder()
-                .title(title)
-                .content(content)
-                .build();
-
-        return Post.builder()
-                .id(id)
-                .postInfo(postInfo)
-                .build();
-    }
 }
