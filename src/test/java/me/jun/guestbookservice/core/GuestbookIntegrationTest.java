@@ -55,6 +55,7 @@ public class GuestbookIntegrationTest {
     @Test
     void guestbookTest() {
         createPost();
+        retrievePost(1L);
     }
 
     private void createPost() {
@@ -76,6 +77,30 @@ public class GuestbookIntegrationTest {
 
                 .when()
                 .post("/api/posts")
+
+                .then()
+                .statusCode(OK.value())
+                .body("$", x -> hasKey("id"))
+                .body("$", x -> hasKey("title"))
+                .body("$", x -> hasKey("content"))
+                .body("$", x -> hasKey("writerId"))
+                .body("$", x -> hasKey("createdAt"))
+                .body("$", x -> hasKey("updatedAt"))
+                .extract()
+                .asString();
+
+        JsonElement element = JsonParser.parseString(response);
+        System.out.println(gson.toJson(element));
+    }
+
+    private void retrievePost(Long id) {
+        String response = given()
+                .log().all()
+                .port(port)
+                .accept(APPLICATION_JSON_VALUE)
+
+                .when()
+                .get("/api/posts/" + id)
 
                 .then()
                 .statusCode(OK.value())
