@@ -6,11 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.common.security.WriterId;
 import me.jun.guestbookservice.core.application.PostService;
 import me.jun.guestbookservice.core.application.dto.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @RestController
@@ -37,7 +39,7 @@ public class PostController {
                 .map(postResponse -> ResponseEntity.ok()
                         .body(postResponse)
                 )
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 
     @GetMapping(
@@ -51,7 +53,7 @@ public class PostController {
                 .map(postResponse -> ResponseEntity.ok()
                                 .body(postResponse)
                 )
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 
     @PutMapping(
@@ -71,7 +73,7 @@ public class PostController {
                 .map(postResponse -> ResponseEntity.ok()
                         .body(postResponse)
                 )
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 
     @DeleteMapping("/{postId}")
@@ -83,11 +85,30 @@ public class PostController {
                                 .build()
                 )
                         .log()
-                        .doOnError(throwable -> log.info("{}", throwable))
+                        .doOnError(throwable -> log.error("{}", throwable))
         )
                 .log()
                 .map(empty -> ResponseEntity.ok()
                         .body(empty))
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
+    }
+
+    @GetMapping(
+            value = "/query",
+            produces = APPLICATION_JSON_VALUE
+    )
+    public Mono<ResponseEntity<PostListResponse>> retrievePostList(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
+    ) {
+        return postService.retrievePostList(
+                Mono.fromSupplier(() -> PageRequest.of(page, size))
+                        .log()
+                        .doOnError(throwable -> log.error("{}", throwable))
+        )
+                .log()
+                .map(response -> ResponseEntity.ok()
+                        .body(response))
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 }

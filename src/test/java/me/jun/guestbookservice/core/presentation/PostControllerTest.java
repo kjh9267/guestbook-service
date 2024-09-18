@@ -378,4 +378,19 @@ public class PostControllerTest {
                 .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
+
+    @Test
+    void retrievePostListTest() {
+        given(postService.retrievePostList(any()))
+                .willReturn(Mono.just(postListResponse()));
+
+        webTestClient.get()
+                .uri("/api/posts/query?page=0&size=10")
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().is2xxSuccessful()
+                .expectBody()
+                .jsonPath("postResponses").exists()
+                .consumeWith(System.out::println);
+    }
 }
