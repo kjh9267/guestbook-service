@@ -8,6 +8,9 @@ import me.jun.guestbookservice.core.domain.PostInfo;
 import me.jun.guestbookservice.core.domain.Writer;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 abstract public class PostFixture {
@@ -102,5 +105,19 @@ abstract public class PostFixture {
         return DeletePostRequest.builder()
                 .id(POST_ID)
                 .build();
+    }
+
+    public static List<Post> postList() {
+        return LongStream.rangeClosed(1, 10)
+                .mapToObj(
+                        id -> post().toBuilder()
+                                .id(id)
+                                .build()
+                )
+                .collect(Collectors.toList());
+    }
+
+    public static PostListResponse postListResponse() {
+        return PostListResponse.of(postList());
     }
 }

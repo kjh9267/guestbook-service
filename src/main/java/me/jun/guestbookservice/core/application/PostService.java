@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.core.application.dto.*;
 import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
 import me.jun.guestbookservice.core.domain.repository.PostRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -22,7 +23,7 @@ public class PostService {
                 .map(CreatePostRequest::toEntity)
                 .map(postRepository::save)
                 .map(PostResponse::of)
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 
     public Mono<PostResponse> retrievePost(Mono<RetrievePostRequest> requestMono) {
@@ -33,7 +34,7 @@ public class PostService {
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(id)))
                 )
                 .map(PostResponse::of)
-                .doOnError(throwable -> log.info("{}", throwable));
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 
     public Mono<PostResponse> updatePost(Mono<UpdatePostRequest> requestMono) {
@@ -45,13 +46,20 @@ public class PostService {
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(request.getId())))
         )
                 .map(PostResponse::of)
-                .doOnError(throwable -> log.info("", throwable));
+                .doOnError(throwable -> log.error("", throwable));
     }
 
     public Mono<Void> deletePost(Mono<DeletePostRequest> requestMono) {
         return requestMono.log()
                 .doOnNext(request -> postRepository.deleteById(request.getId()))
-                .doOnError(throwable -> log.info("{}", throwable))
+                .doOnError(throwable -> log.error("{}", throwable))
                 .flatMap(request -> Mono.empty());
+    }
+
+    public Mono<PostListResponse> retrievePostList(Mono<PageRequest> requestMono) {
+        return requestMono.log()
+                .map(request -> postRepository.findAllBy(request))
+                .map(PostListResponse::of)
+                .doOnError(throwable -> log.error("{}", throwable));
     }
 }

@@ -1,5 +1,6 @@
 package me.jun.guestbookservice.core.application;
 
+import me.jun.guestbookservice.core.application.dto.PostListResponse;
 import me.jun.guestbookservice.core.application.dto.PostResponse;
 import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
 import me.jun.guestbookservice.core.domain.repository.PostRepository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -100,5 +102,16 @@ public class PostServiceTest {
 
         verify(postRepository)
                 .deleteById(deletePostRequest().getId());
+    }
+
+    @Test
+    void retrievePostListTest() {
+        PostListResponse expected = postListResponse();
+
+        given(postRepository.findAllBy(any()))
+                .willReturn(postList());
+
+        assertThat(postService.retrievePostList(Mono.just(PageRequest.of(0, 10))).block())
+                .isEqualToComparingFieldByField(expected);
     }
 }
