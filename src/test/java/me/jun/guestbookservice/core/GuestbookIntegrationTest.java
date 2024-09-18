@@ -61,6 +61,15 @@ public class GuestbookIntegrationTest {
         deletePost();
     }
 
+    @Test
+    void retrievePostListTest() {
+        for (int count = 0; count < 10; count++) {
+            createPost();
+        }
+
+        retrievePostList(0, 10);
+    }
+
     private void createPost() {
         MockResponse mockResponse = new MockResponse()
                 .setResponseCode(OK.value())
@@ -174,6 +183,27 @@ public class GuestbookIntegrationTest {
 
                 .then()
                 .statusCode(OK.value())
+                .extract()
+                .asString();
+
+        JsonElement element = JsonParser.parseString(response);
+        System.out.println(gson.toJson(element));
+    }
+
+    private void retrievePostList(int page, int size) {
+        String response = given()
+                .log().all()
+                .port(port)
+                .accept(APPLICATION_JSON_VALUE)
+                .queryParam("page", page)
+                .queryParam("size", size)
+
+                .when()
+                .get("/api/posts/query")
+
+                .then()
+                .statusCode(OK.value())
+                .body("$", x -> hasKey("postResponses"))
                 .extract()
                 .asString();
 
