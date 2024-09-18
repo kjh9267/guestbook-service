@@ -1,11 +1,10 @@
 package me.jun.guestbookservice.core.application.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.PostInfo;
+import me.jun.guestbookservice.core.domain.Writer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -27,9 +26,13 @@ public class CreatePostRequest {
                 .content(content)
                 .build();
 
+        Writer writer = Writer.builder()
+                .value(writerId)
+                .build();
+
         return Post.builder()
                 .postInfo(postInfo)
-                .writerId(writerId)
+                .writer(writer)
                 .build();
     }
 }

@@ -31,7 +31,7 @@ public class PostResponse {
                 .id(post.getId())
                 .title(title)
                 .content(content)
-                .writerId(post.getWriterId())
+                .writerId(post.getWriter().getValue())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import me.jun.guestbookservice.core.application.dto.*;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.PostInfo;
+import me.jun.guestbookservice.core.domain.Writer;
 
 import java.time.Instant;
 
@@ -34,11 +35,17 @@ abstract public class PostFixture {
                 .build();
     }
 
+    public static Writer writer() {
+        return Writer.builder()
+                .value(WRITER_ID)
+                .build();
+    }
+
     public static Post post() {
         return Post.builder()
                 .id(POST_ID)
                 .postInfo(postInfo())
-                .writerId(WRITER_ID)
+                .writer(writer())
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
                 .build();
@@ -55,7 +62,7 @@ abstract public class PostFixture {
         return Post.builder()
                 .id(POST_ID)
                 .postInfo(updatedPostInfo())
-                .writerId(WRITER_ID)
+                .writer(writer())
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
                 .build();
