@@ -48,13 +48,13 @@ class WriterServiceImplTest {
                 .setHeader(CONTENT_TYPE, APPLICATION_JSON)
                 .setBody(WRITER_RESPONSE_JSON);
 
-        mockWebServer.url(WRITER_BASE_URL + ":" + mockWebServer.getPort() + WRITER_URI + "/" + WRITER_EMAIL);
+        mockWebServer.url(WRITER_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
-        Object response = "" + writerServiceImpl.retrieveWriterIdByEmail(WRITER_EMAIL).block();
+        Object response = writerServiceImpl.retrieveWriterIdByEmail(WRITER_EMAIL).block();
 
         assertThat(response)
-                .isEqualTo(WRITER_RESPONSE);
+                .isEqualTo(1L);
     }
 
     @Test
@@ -63,7 +63,7 @@ class WriterServiceImplTest {
                 .setResponseCode(NOT_FOUND.value())
                 .setHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-        mockWebServer.url(WRITER_BASE_URL + ":" + mockWebServer.getPort() + WRITER_URI + "/" + WRITER_EMAIL);
+        mockWebServer.url(WRITER_BASE_URL);
         mockWebServer.enqueue(mockResponse);
 
         assertThrows(

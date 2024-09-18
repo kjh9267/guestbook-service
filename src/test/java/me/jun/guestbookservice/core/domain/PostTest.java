@@ -1,5 +1,6 @@
 package me.jun.guestbookservice.core.domain;
 
+import me.jun.guestbookservice.core.domain.exception.WriterMismatchException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static me.jun.guestbookservice.support.PostFixture.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -18,12 +21,16 @@ public class PostTest {
     private Post post;
 
     @Mock
-    private PostInfo postInfo;
+    private PostInfo mockPostInfo;
+
+    @Mock
+    private Writer mockWriter;
 
     @BeforeEach
     void setUp() {
         post = post().toBuilder()
-                .postInfo(postInfo)
+                .postInfo(mockPostInfo)
+                .writer(mockWriter)
                 .build();
     }
 
@@ -37,13 +44,34 @@ public class PostTest {
         Post expected = Post.builder()
                 .id(POST_ID)
                 .postInfo(postInfo())
-                .writerId(WRITER_ID)
+                .writer(writer())
                 .createdAt(CREATED_AT)
                 .updatedAt(UPDATED_AT)
                 .build();
 
         assertThat(post())
                 .isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    void validateWriterTest() {
+        given(mockWriter.validate(any()))
+                .willReturn(mockWriter);
+
+        assertDoesNotThrow(
+                () -> post.validateWriter(WRITER_ID)
+        );
+    }
+
+    @Test
+    void validateWriterFailTest() {
+        given(mockWriter.validate(any()))
+                .willThrow(WriterMismatchException.of(WRITER_ID.toString()));
+
+        assertThrows(
+                WriterMismatchException.class,
+                () -> post.validateWriter(WRITER_ID)
+        );
     }
 
     @Test
@@ -56,7 +84,7 @@ public class PostTest {
                 )
                 .build();
 
-        given(postInfo.updateTitle(any()))
+        given(mockPostInfo.updateTitle(any()))
                 .willReturn(
                         postInfo().toBuilder()
                                 .title(NEW_TITLE)
@@ -64,7 +92,7 @@ public class PostTest {
                 );
 
         assertThat(post.updateTitle("new title string"))
-                .isEqualToIgnoringGivenFields(expected);
+                .isEqualToIgnoringGivenFields(expected, "writer");
     }
 
     @Test
@@ -77,7 +105,7 @@ public class PostTest {
                 )
                 .build();
 
-        given(postInfo.updateContent(NEW_CONTENT))
+        given(mockPostInfo.updateContent(NEW_CONTENT))
                 .willReturn(
                         postInfo().toBuilder()
                                 .content(NEW_CONTENT)
@@ -85,6 +113,6 @@ public class PostTest {
                 );
 
         assertThat(post.updateContent("new content string"))
-                .isEqualToIgnoringGivenFields(expected);
+                .isEqualToIgnoringGivenFields(expected, "writer");
     }
 }

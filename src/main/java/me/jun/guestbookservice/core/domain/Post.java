@@ -26,8 +26,8 @@ public class Post {
     @Embedded
     private PostInfo postInfo;
 
-    @Column(nullable = false)
-    private Long writerId;
+    @Embedded
+    private Writer writer;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
@@ -36,6 +36,11 @@ public class Post {
     @Column(nullable = false)
     @LastModifiedDate
     private Instant updatedAt;
+
+    public Post validateWriter(Long writerId) {
+        writer.validate(writerId);
+        return this;
+    }
 
     public Post updateTitle(String newTitle) {
         this.postInfo = postInfo.updateTitle(newTitle);

@@ -8,6 +8,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
+@EqualsAndHashCode
 @Getter
 public class PostResponse {
 
@@ -31,7 +32,7 @@ public class PostResponse {
                 .id(post.getId())
                 .title(title)
                 .content(content)
-                .writerId(post.getWriterId())
+                .writerId(post.getWriter().getValue())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
