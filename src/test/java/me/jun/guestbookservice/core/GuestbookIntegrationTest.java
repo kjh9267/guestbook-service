@@ -18,6 +18,7 @@ import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static me.jun.guestbookservice.support.PostFixture.createPostRequest;
+import static me.jun.guestbookservice.support.PostFixture.updatePostRequest;
 import static me.jun.guestbookservice.support.WriterFixture.*;
 import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -56,6 +57,7 @@ public class GuestbookIntegrationTest {
     void guestbookTest() {
         createPost();
         retrievePost(1L);
+        updatePost();
     }
 
     private void createPost() {
@@ -101,6 +103,41 @@ public class GuestbookIntegrationTest {
 
                 .when()
                 .get("/api/posts/" + id)
+
+                .then()
+                .statusCode(OK.value())
+                .body("$", x -> hasKey("id"))
+                .body("$", x -> hasKey("title"))
+                .body("$", x -> hasKey("content"))
+                .body("$", x -> hasKey("writerId"))
+                .body("$", x -> hasKey("createdAt"))
+                .body("$", x -> hasKey("updatedAt"))
+                .extract()
+                .asString();
+
+        JsonElement element = JsonParser.parseString(response);
+        System.out.println(gson.toJson(element));
+    }
+
+    private void updatePost() {
+        MockResponse mockResponse = new MockResponse()
+                .setResponseCode(OK.value())
+                .setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .setBody(WRITER_RESPONSE_JSON);
+
+        mockWebServer.url(WRITER_BASE_URL);
+        mockWebServer.enqueue(mockResponse);
+
+        String response = given()
+                .log().all()
+                .port(port)
+                .accept(APPLICATION_JSON_VALUE)
+                .contentType(APPLICATION_JSON_VALUE)
+                .header(AUTHORIZATION, TOKEN)
+                .body(updatePostRequest())
+
+                .when()
+                .put("/api/posts")
 
                 .then()
                 .statusCode(OK.value())
