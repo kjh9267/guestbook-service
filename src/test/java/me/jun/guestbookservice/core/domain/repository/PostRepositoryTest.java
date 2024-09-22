@@ -11,7 +11,7 @@ import static me.jun.guestbookservice.support.PostFixture.post;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ActiveProfiles("test")
-@DataJpaTest
+@DataJpaTest(properties = "spring.cloud.config.enabled=false")
 class PostRepositoryTest {
 
     @Autowired
