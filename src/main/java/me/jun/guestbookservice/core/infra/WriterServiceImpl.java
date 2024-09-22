@@ -31,10 +31,9 @@ public class WriterServiceImpl implements WriterService {
                 .contentType(APPLICATION_JSON)
                 .body(Mono.just(email), String.class)
                 .retrieve()
-                .bodyToMono(WriterResponse.class)
-                .log()
-                .map(writer -> writer.getId())
-                .map(id -> (Object) id)
-                .doOnError(throwable -> log.info("{}", throwable));
+                .bodyToMono(WriterResponse.class).log()
+                .map(writer -> writer.getId()).log()
+                .map(id -> (Object) id).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }

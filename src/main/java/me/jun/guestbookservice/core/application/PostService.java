@@ -19,47 +19,46 @@ public class PostService {
     private final PostRepository postRepository;
 
     public Mono<PostResponse> createPost(Mono<CreatePostRequest> requestMono) {
-        return requestMono.log()
-                .map(CreatePostRequest::toEntity)
-                .map(postRepository::save)
-                .map(PostResponse::of)
-                .doOnError(throwable -> log.error("{}", throwable));
+        return requestMono
+                .map(CreatePostRequest::toEntity).log()
+                .map(postRepository::save).log()
+                .map(PostResponse::of).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     public Mono<PostResponse> retrievePost(Mono<RetrievePostRequest> requestMono) {
-        return requestMono.log()
-                .map(request -> request.getId())
+        return requestMono
+                .map(request -> request.getId()).log()
                 .map(
                         id -> postRepository.findById(id)
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(id)))
-                )
-                .map(PostResponse::of)
-                .doOnError(throwable -> log.error("{}", throwable));
+                ).log()
+                .map(PostResponse::of).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     public Mono<PostResponse> updatePost(Mono<UpdatePostRequest> requestMono) {
-        return requestMono.log()
+        return requestMono
                 .map(
                         request -> postRepository.findById(request.getId())
                                 .map(post -> post.updateTitle(request.getTitle()))
                                 .map(post -> post.updateContent(request.getContent()))
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(request.getId())))
-        )
-                .map(PostResponse::of)
-                .doOnError(throwable -> log.error("", throwable));
+                ).log()
+                .map(PostResponse::of).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     public Mono<Void> deletePost(Mono<DeletePostRequest> requestMono) {
-        return requestMono.log()
-                .doOnNext(request -> postRepository.deleteById(request.getId()))
-                .doOnError(throwable -> log.error("{}", throwable))
+        return requestMono
+                .doOnNext(request -> postRepository.deleteById(request.getId())).log()
                 .flatMap(request -> Mono.empty());
     }
 
     public Mono<PostListResponse> retrievePostList(Mono<PageRequest> requestMono) {
-        return requestMono.log()
-                .map(request -> postRepository.findAllBy(request))
-                .map(PostListResponse::of)
-                .doOnError(throwable -> log.error("{}", throwable));
+        return requestMono
+                .map(request -> postRepository.findAllBy(request)).log()
+                .map(PostListResponse::of).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }
