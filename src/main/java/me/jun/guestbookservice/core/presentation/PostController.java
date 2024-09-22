@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static reactor.core.scheduler.Schedulers.boundedElastic;
 
 @Slf4j
 @RestController
@@ -27,19 +28,18 @@ public class PostController {
             consumes = APPLICATION_JSON
     )
     public Mono<ResponseEntity<PostResponse>> createPost(@RequestBody @Valid CreatePostRequest request, @WriterId Long writerId) {
-        return postService.createPost(
-                Mono.fromSupplier(
-                        () -> request.toBuilder()
-                                .writerId(writerId)
-                                .build()
-                        )
-                        .log()
-        )
-                .log()
+        Mono<CreatePostRequest> requestMono = Mono.fromSupplier(
+                () -> request.toBuilder()
+                        .writerId(writerId)
+                        .build()
+                ).log()
+                .publishOn(boundedElastic()).log();
+
+        return postService.createPost(requestMono).log()
                 .map(postResponse -> ResponseEntity.ok()
                         .body(postResponse)
-                )
-                .doOnError(throwable -> log.error("{}", throwable));
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     @GetMapping(
@@ -47,13 +47,16 @@ public class PostController {
             produces = APPLICATION_JSON
     )
     public Mono<ResponseEntity<PostResponse>> retrievePost(@PathVariable Long postId) {
-        return postService.retrievePost(
-                Mono.fromSupplier(() -> RetrievePostRequest.of(postId)))
-                .log()
+        Mono<RetrievePostRequest> requestMono = Mono.fromSupplier(
+                () -> RetrievePostRequest.of(postId)
+                ).log()
+                .publishOn(boundedElastic()).log();
+
+        return postService.retrievePost(requestMono).log()
                 .map(postResponse -> ResponseEntity.ok()
                                 .body(postResponse)
-                )
-                .doOnError(throwable -> log.error("{}", throwable));
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     @PutMapping(
@@ -61,36 +64,34 @@ public class PostController {
             produces = APPLICATION_JSON
     )
     public Mono<ResponseEntity<PostResponse>> updatePost(@RequestBody @Valid UpdatePostRequest request, @WriterId Long writerId) {
-        return postService.updatePost(
-                Mono.fromSupplier(
-                        () -> request.toBuilder()
-                                .id(writerId)
-                                .build()
-                )
-                        .log()
-        )
-                .log()
+        Mono<UpdatePostRequest> requestMono = Mono.fromSupplier(
+                () -> request.toBuilder()
+                        .id(writerId)
+                        .build()
+                ).log()
+                .publishOn(boundedElastic()).log();
+
+        return postService.updatePost(requestMono).log()
                 .map(postResponse -> ResponseEntity.ok()
                         .body(postResponse)
-                )
-                .doOnError(throwable -> log.error("{}", throwable));
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     @DeleteMapping("/{postId}")
     public Mono<ResponseEntity<Void>> deletePost(@PathVariable Long postId, @WriterId Long writerId) {
-        return postService.deletePost(
-                Mono.fromSupplier(
-                        () -> DeletePostRequest.builder()
-                                .id(postId)
-                                .build()
-                )
-                        .log()
-                        .doOnError(throwable -> log.error("{}", throwable))
-        )
-                .log()
+        Mono<DeletePostRequest> requestMono = Mono.fromSupplier(
+                () -> DeletePostRequest.builder()
+                        .id(postId)
+                        .build()
+                ).log()
+                .publishOn(boundedElastic()).log();
+
+        return postService.deletePost(requestMono).log()
                 .map(empty -> ResponseEntity.ok()
-                        .body(empty))
-                .doOnError(throwable -> log.error("{}", throwable));
+                        .body(empty)
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 
     @GetMapping(
@@ -101,14 +102,16 @@ public class PostController {
             @RequestParam("page") int page,
             @RequestParam("size") int size
     ) {
-        return postService.retrievePostList(
-                Mono.fromSupplier(() -> PageRequest.of(page, size))
-                        .log()
-                        .doOnError(throwable -> log.error("{}", throwable))
-        )
-                .log()
-                .map(response -> ResponseEntity.ok()
-                        .body(response))
-                .doOnError(throwable -> log.error("{}", throwable));
+        Mono<PageRequest> requestMono = Mono.fromSupplier(
+                () -> PageRequest.of(page, size)
+                ).log()
+                .publishOn(boundedElastic()).log();
+
+        return postService.retrievePostList(requestMono).log()
+                .map(
+                        response -> ResponseEntity.ok()
+                                .body(response)
+                ).log()
+                .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }
