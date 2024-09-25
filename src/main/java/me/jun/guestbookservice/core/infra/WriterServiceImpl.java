@@ -1,5 +1,6 @@
 package me.jun.guestbookservice.core.infra;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.core.application.WriterService;
 import me.jun.guestbookservice.core.application.dto.RetrieveWriterIdRequest;
@@ -30,6 +31,7 @@ public class WriterServiceImpl implements WriterService {
     }
 
     @Override
+    @CircuitBreaker(name = "writerCircuitBreaker")
     public Mono<Object> retrieveWriterIdByEmail(String email) {
         RetrieveWriterIdRequest request = RetrieveWriterIdRequest.builder()
                 .email(email)
