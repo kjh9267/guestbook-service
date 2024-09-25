@@ -48,7 +48,7 @@ public class GuestbookIntegrationTest {
     @BeforeEach
     void setUp() throws IOException {
         mockWebServer = new MockWebServer();
-        mockWebServer.start(WRITER_BASE_URL_PORT);
+        mockWebServer.start(WRITER_PORT);
     }
 
     @AfterEach
