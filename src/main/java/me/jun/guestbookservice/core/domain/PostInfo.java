@@ -1,8 +1,9 @@
 package me.jun.guestbookservice.core.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import lombok.*;
+
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

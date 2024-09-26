@@ -1,10 +1,11 @@
 package me.jun.guestbookservice.core.application.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.PostInfo;
 import me.jun.guestbookservice.core.domain.Writer;
+
+import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
