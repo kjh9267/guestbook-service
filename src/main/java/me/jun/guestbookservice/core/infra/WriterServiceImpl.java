@@ -48,7 +48,6 @@ public class WriterServiceImpl implements WriterService {
                 .retrieve()
                 .bodyToMono(WriterResponse.class).log()
                 .map(writer -> writer.getId()).log()
-                .map(id -> (Object) id).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                .map(id -> (Object) id);
     }
 }

@@ -22,8 +22,7 @@ public class PostService {
         return requestMono
                 .map(CreatePostRequest::toEntity).log()
                 .map(postRepository::save).log()
-                .map(PostResponse::of).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                .map(PostResponse::of);
     }
 
     public Mono<PostResponse> retrievePost(Mono<RetrievePostRequest> requestMono) {
@@ -33,8 +32,7 @@ public class PostService {
                         id -> postRepository.findById(id)
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(id)))
                 ).log()
-                .map(PostResponse::of).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                .map(PostResponse::of);
     }
 
     public Mono<PostResponse> updatePost(Mono<UpdatePostRequest> requestMono) {
@@ -45,8 +43,7 @@ public class PostService {
                                 .map(post -> post.updateContent(request.getContent()))
                                 .orElseThrow(() -> PostNotFoundException.of(String.valueOf(request.getId())))
                 ).log()
-                .map(PostResponse::of).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                .map(PostResponse::of);
     }
 
     public Mono<Void> deletePost(Mono<DeletePostRequest> requestMono) {
@@ -58,7 +55,6 @@ public class PostService {
     public Mono<PostListResponse> retrievePostList(Mono<PageRequest> requestMono) {
         return requestMono
                 .map(request -> postRepository.findAllBy(request)).log()
-                .map(PostListResponse::of).log()
-                .doOnError(throwable -> log.error(throwable.getMessage()));
+                .map(PostListResponse::of);
     }
 }

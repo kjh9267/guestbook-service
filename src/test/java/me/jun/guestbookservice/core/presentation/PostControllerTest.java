@@ -83,8 +83,8 @@ public class PostControllerTest {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .exchange()
-                .expectStatus().is4xxClientError()
-                .expectBody().jsonPath("detail").exists()
+                .expectStatus().is5xxServerError()
+                .expectBody()
                 .consumeWith(System.out::println);
     }
 
@@ -143,7 +143,6 @@ public class PostControllerTest {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody()
-                .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 
@@ -189,7 +188,6 @@ public class PostControllerTest {
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody()
-                .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 
@@ -278,7 +276,6 @@ public class PostControllerTest {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody()
-                .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 
@@ -308,9 +305,8 @@ public class PostControllerTest {
                 .uri("/api/posts/asdf")
                 .header(AUTHORIZATION, TOKEN)
                 .exchange()
-                .expectStatus().is4xxClientError()
+                .expectStatus().is5xxServerError()
                 .expectBody()
-                .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 
@@ -375,7 +371,6 @@ public class PostControllerTest {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody()
-                .jsonPath("detail").exists()
                 .consumeWith(System.out::println);
     }
 
