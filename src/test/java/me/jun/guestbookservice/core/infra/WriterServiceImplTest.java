@@ -23,7 +23,7 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(properties = "spring.cloud.config.enabled=false")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class WriterServiceImplTest {
 
