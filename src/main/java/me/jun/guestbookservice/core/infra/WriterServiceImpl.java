@@ -37,9 +37,7 @@ public class WriterServiceImpl implements WriterService {
                 .email(email)
                 .build();
 
-        return writerWebClientBuilder
-                .defaultHeader(ACCEPT, APPLICATION_JSON_VALUE)
-                .build()
+        return writerWebClientBuilder.build()
                 .post()
                 .uri(writerUri)
                 .contentType(APPLICATION_JSON)
