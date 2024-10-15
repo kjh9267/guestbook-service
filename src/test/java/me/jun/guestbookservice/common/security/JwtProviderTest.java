@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static me.jun.guestbookservice.support.TokenFixture.*;
+import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class JwtProviderTest {
@@ -20,6 +21,6 @@ class JwtProviderTest {
         String email = jwtProvider.extractSubject(TOKEN);
 
         assertThat(email)
-                .isEqualTo(EMAIL);
+                .isEqualTo(WRITER_ID.toString());
     }
 }

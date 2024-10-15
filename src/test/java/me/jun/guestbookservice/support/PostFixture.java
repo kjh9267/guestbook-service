@@ -5,12 +5,14 @@ import lombok.NoArgsConstructor;
 import me.jun.guestbookservice.core.application.dto.*;
 import me.jun.guestbookservice.core.domain.Post;
 import me.jun.guestbookservice.core.domain.PostInfo;
-import me.jun.guestbookservice.core.domain.Writer;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+
+import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
+import static me.jun.guestbookservice.support.WriterFixture.writer;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 abstract public class PostFixture {
@@ -20,8 +22,6 @@ abstract public class PostFixture {
     public static final String TITLE = "title string";
 
     public static final String CONTENT = "content string";
-
-    public static final Long WRITER_ID = 1L;
 
     public static final Instant CREATED_AT = Instant.now();
 
@@ -35,12 +35,6 @@ abstract public class PostFixture {
         return PostInfo.builder()
                 .title(TITLE)
                 .content(CONTENT)
-                .build();
-    }
-
-    public static Writer writer() {
-        return Writer.builder()
-                .value(WRITER_ID)
                 .build();
     }
 

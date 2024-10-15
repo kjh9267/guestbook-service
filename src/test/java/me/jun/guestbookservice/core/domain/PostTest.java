@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static me.jun.guestbookservice.support.PostFixture.*;
+import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
+import static me.jun.guestbookservice.support.WriterFixture.writer;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -3,7 +3,6 @@ package me.jun.guestbookservice.common.security;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.common.security.exception.InvalidTokenException;
-import me.jun.guestbookservice.core.application.WriterService;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.BindingContext;
@@ -12,7 +11,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-import static reactor.core.scheduler.Schedulers.boundedElastic;
 
 @Slf4j
 @Component
@@ -20,8 +18,6 @@ import static reactor.core.scheduler.Schedulers.boundedElastic;
 public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
 
     private final JwtProvider jwtProvider;
-
-    private final WriterService writerServiceImpl;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -42,11 +38,7 @@ public class JwtSubjectResolver implements HandlerMethodArgumentResolver {
             throw InvalidTokenException.of(e.getMessage());
         }
 
-        return Mono.fromSupplier(() -> jwtProvider.extractSubject(token)).log()
-                .publishOn(boundedElastic()).log()
-                .flatMap(
-                        email -> writerServiceImpl.retrieveWriterIdByEmail(email)
-                ).log()
+        return Mono.fromSupplier(() -> (Object) Long.valueOf(jwtProvider.extractSubject(token))).log()
                 .doOnError(throwable -> log.error(throwable.getMessage()));
     }
 }
