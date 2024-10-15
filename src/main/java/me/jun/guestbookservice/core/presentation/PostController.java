@@ -33,7 +33,10 @@ public class PostController {
             value = "posts.create",
             longTask = true
     )
-    public Mono<ResponseEntity<PostResponse>> createPost(@RequestBody @Valid CreatePostRequest request, @WriterId Long writerId) {
+    public Mono<ResponseEntity<PostResponse>> createPost(
+            @RequestBody @Valid CreatePostRequest request,
+            @WriterId Long writerId
+    ) {
         Mono<CreatePostRequest> requestMono = Mono.fromSupplier(
                 () -> request.toBuilder()
                         .writerId(writerId)
@@ -56,7 +59,9 @@ public class PostController {
             value = "posts.retrieve",
             longTask = true
     )
-    public Mono<ResponseEntity<PostResponse>> retrievePost(@PathVariable Long postId) {
+    public Mono<ResponseEntity<PostResponse>> retrievePost(
+            @PathVariable Long postId
+    ) {
         Mono<RetrievePostRequest> requestMono = Mono.fromSupplier(
                 () -> RetrievePostRequest.of(postId)
                 ).log()
@@ -77,7 +82,10 @@ public class PostController {
             value = "posts.update",
             longTask = true
     )
-    public Mono<ResponseEntity<PostResponse>> updatePost(@RequestBody @Valid UpdatePostRequest request, @WriterId Long writerId) {
+    public Mono<ResponseEntity<PostResponse>> updatePost(
+            @RequestBody @Valid UpdatePostRequest request,
+            @WriterId Long writerId
+    ) {
         Mono<UpdatePostRequest> requestMono = Mono.fromSupplier(
                 () -> request.toBuilder()
                         .id(writerId)
@@ -97,7 +105,10 @@ public class PostController {
             value = "posts.delete",
             longTask = true
     )
-    public Mono<ResponseEntity<Void>> deletePost(@PathVariable Long postId, @WriterId Long writerId) {
+    public Mono<ResponseEntity<Void>> deletePost(
+            @PathVariable Long postId,
+            @WriterId Long writerId
+    ) {
         Mono<DeletePostRequest> requestMono = Mono.fromSupplier(
                 () -> DeletePostRequest.builder()
                         .id(postId)

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import me.jun.guestbookservice.common.security.JwtProvider;
 import me.jun.guestbookservice.common.security.exception.InvalidTokenException;
 import me.jun.guestbookservice.core.application.PostService;
-import me.jun.guestbookservice.core.application.WriterService;
 import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
+import me.jun.guestbookservice.core.domain.exception.WriterMismatchException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -14,12 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import static me.jun.guestbookservice.support.PostFixture.*;
-import static me.jun.guestbookservice.support.TokenFixture.EMAIL;
 import static me.jun.guestbookservice.support.TokenFixture.TOKEN;
+import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -39,9 +38,6 @@ public class PostControllerTest {
     @MockBean
     private JwtProvider jwtProvider;
 
-    @MockBean
-    private WriterService writerServiceImpl;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -53,10 +49,7 @@ public class PostControllerTest {
                 .willReturn(Mono.just(postResponse()));
 
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
-
-        given(writerServiceImpl.retrieveWriterIdByEmail(EMAIL))
-                .willReturn(Mono.just(WRITER_ID));
+                .willReturn(WRITER_ID.toString());
 
         webTestClient.post()
                 .uri("/api/posts")
@@ -125,14 +118,14 @@ public class PostControllerTest {
     }
 
     @Test
-    void unknownWriter_createPostFailTest() throws JsonProcessingException {
+    void invalidWriter_createPostFailTest() throws JsonProcessingException {
         String content = objectMapper.writeValueAsString(createPostRequest());
 
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
+                .willReturn("2");
 
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willThrow(WebClientResponseException.class);
+        given(postService.createPost(any()))
+                .willThrow(WriterMismatchException.of("2"));
 
         webTestClient.post()
                 .uri("/api/posts")
@@ -141,7 +134,7 @@ public class PostControllerTest {
                 .header(AUTHORIZATION, TOKEN)
                 .bodyValue(content)
                 .exchange()
-                .expectStatus().is5xxServerError()
+                .expectStatus().is4xxClientError()
                 .expectBody()
                 .consumeWith(System.out::println);
     }
@@ -196,10 +189,7 @@ public class PostControllerTest {
         String content = objectMapper.writeValueAsString(updatePostRequest());
 
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
-
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willReturn(Mono.just(WRITER_ID));
+                .willReturn(WRITER_ID.toString());
 
         given(postService.updatePost(any()))
                 .willReturn(Mono.just(postResponse()));
@@ -258,14 +248,14 @@ public class PostControllerTest {
     }
 
     @Test
-    void unknownWriter_updatePostFailTest() throws JsonProcessingException {
+    void invalidWriter_updatePostFailTest() throws JsonProcessingException {
         String content = objectMapper.writeValueAsString(updatePostRequest());
 
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
+                .willReturn("2");
 
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willThrow(WebClientResponseException.class);
+        given(postService.updatePost(any()))
+                .willThrow(WriterMismatchException.of("2"));
 
         webTestClient.put()
                 .uri("/api/posts")
@@ -274,7 +264,7 @@ public class PostControllerTest {
                 .header(AUTHORIZATION, TOKEN)
                 .bodyValue(content)
                 .exchange()
-                .expectStatus().is5xxServerError()
+                .expectStatus().is4xxClientError()
                 .expectBody()
                 .consumeWith(System.out::println);
     }
@@ -282,10 +272,7 @@ public class PostControllerTest {
     @Test
     void deletePostTest() {
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
-
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willReturn(Mono.just(WRITER_ID));
+                .willReturn(WRITER_ID.toString());
 
         given(postService.deletePost(any()))
                 .willReturn(Mono.empty());
@@ -313,10 +300,7 @@ public class PostControllerTest {
     @Test
     void noPost_deletePostFailTest() {
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
-
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willReturn(Mono.just(WRITER_ID));
+                .willReturn(WRITER_ID.toString());
 
         given(postService.deletePost(any()))
                 .willThrow(PostNotFoundException.of("1"));
@@ -358,18 +342,18 @@ public class PostControllerTest {
     }
 
     @Test
-    void unknownWriter_deletePostFailTest() {
+    void invalidWriter_deletePostFailTest() {
         given(jwtProvider.extractSubject(any()))
-                .willReturn(EMAIL);
+                .willReturn("2");
 
-        given(writerServiceImpl.retrieveWriterIdByEmail(any()))
-                .willThrow(WebClientResponseException.class);
+        given(postService.deletePost(any()))
+                .willThrow(WriterMismatchException.of("2"));
 
         webTestClient.delete()
                 .uri("/api/posts/1")
                 .header(AUTHORIZATION, TOKEN)
                 .exchange()
-                .expectStatus().is5xxServerError()
+                .expectStatus().is4xxClientError()
                 .expectBody()
                 .consumeWith(System.out::println);
     }
