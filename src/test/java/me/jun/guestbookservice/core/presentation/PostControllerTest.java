@@ -7,6 +7,7 @@ import me.jun.guestbookservice.common.security.exception.InvalidTokenException;
 import me.jun.guestbookservice.core.application.PostService;
 import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
 import me.jun.guestbookservice.core.domain.exception.WriterMismatchException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -17,7 +18,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import static me.jun.guestbookservice.support.PostFixture.*;
-import static me.jun.guestbookservice.support.TokenFixture.TOKEN;
+import static me.jun.guestbookservice.support.TokenFixture.createToken;
 import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -41,6 +42,13 @@ public class PostControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private String token;
+
+    @BeforeEach
+    void setUp() {
+        token = createToken(WRITER_ID, 30L);
+    }
+
     @Test
     void createPostTest() throws JsonProcessingException {
         String content = objectMapper.writeValueAsString(createPostRequest());
@@ -55,7 +63,7 @@ public class PostControllerTest {
                 .uri("/api/posts")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .bodyValue(content)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -102,13 +110,13 @@ public class PostControllerTest {
         String content = objectMapper.writeValueAsString(createPostRequest());
 
         given(jwtProvider.extractSubject(any()))
-                .willThrow(InvalidTokenException.of(TOKEN));
+                .willThrow(InvalidTokenException.of(token));
 
         webTestClient.post()
                 .uri("/api/posts")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .bodyValue(content)
                 .exchange()
                 .expectStatus().is4xxClientError()
@@ -131,7 +139,7 @@ public class PostControllerTest {
                 .uri("/api/posts")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .bodyValue(content)
                 .exchange()
                 .expectStatus().is4xxClientError()
@@ -198,7 +206,7 @@ public class PostControllerTest {
                 .uri("/api/posts")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .bodyValue(content)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
@@ -233,7 +241,7 @@ public class PostControllerTest {
         String content = objectMapper.writeValueAsString(updatePostRequest());
 
         given(jwtProvider.extractSubject(any()))
-                .willThrow(InvalidTokenException.of(TOKEN));
+                .willThrow(InvalidTokenException.of(token));
 
         webTestClient.put()
                 .uri("/api/posts")
@@ -261,7 +269,7 @@ public class PostControllerTest {
                 .uri("/api/posts")
                 .accept(APPLICATION_JSON)
                 .contentType(APPLICATION_JSON)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .bodyValue(content)
                 .exchange()
                 .expectStatus().is4xxClientError()
@@ -279,7 +287,7 @@ public class PostControllerTest {
 
         webTestClient.delete()
                 .uri("/api/posts/1")
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .exchange()
                 .expectStatus().is2xxSuccessful()
                 .expectBody()
@@ -290,7 +298,7 @@ public class PostControllerTest {
     void wrongPathVariable_deletePostFailTest() {
         webTestClient.delete()
                 .uri("/api/posts/asdf")
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody()
@@ -307,7 +315,7 @@ public class PostControllerTest {
 
         webTestClient.delete()
                 .uri("/api/posts/1")
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody()
@@ -329,11 +337,11 @@ public class PostControllerTest {
     @Test
     void invalidToken_deletePostFailTest() {
         given(jwtProvider.extractSubject(any()))
-                .willThrow(InvalidTokenException.of(TOKEN));
+                .willThrow(InvalidTokenException.of(token));
 
         webTestClient.delete()
                 .uri("/api/posts/1")
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody()
@@ -351,7 +359,7 @@ public class PostControllerTest {
 
         webTestClient.delete()
                 .uri("/api/posts/1")
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .exchange()
                 .expectStatus().is4xxClientError()
                 .expectBody()

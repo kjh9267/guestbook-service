@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -13,6 +14,8 @@ import org.springframework.test.context.ActiveProfiles;
 import static io.restassured.RestAssured.given;
 import static me.jun.guestbookservice.support.PostFixture.createPostRequest;
 import static me.jun.guestbookservice.support.PostFixture.updatePostRequest;
+import static me.jun.guestbookservice.support.TokenFixture.createToken;
+import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
 import static org.hamcrest.Matchers.hasKey;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.OK;
@@ -29,11 +32,16 @@ public class GuestbookIntegrationTest {
     @LocalServerPort
     private int port;
 
-    private static final String TOKEN = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIn0.7V_35zv9H504I7nEce3JBe57tAJn8LiuqNDWAyO_exYmvC-G1iuoh13YTcQiLZnJgD7N961enYe-TUEHXav2Zg";
+    private static String token;
 
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
+
+    @BeforeEach
+    void setUp() {
+        token = createToken(WRITER_ID, 30L);
+    }
 
     @Test
     void guestbookTest() {
@@ -58,7 +66,7 @@ public class GuestbookIntegrationTest {
                 .port(port)
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .body(createPostRequest())
 
                 .when()
@@ -109,7 +117,7 @@ public class GuestbookIntegrationTest {
                 .port(port)
                 .accept(APPLICATION_JSON_VALUE)
                 .contentType(APPLICATION_JSON_VALUE)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
                 .body(updatePostRequest())
 
                 .when()
@@ -134,7 +142,7 @@ public class GuestbookIntegrationTest {
         String response = given()
                 .log().all()
                 .port(port)
-                .header(AUTHORIZATION, TOKEN)
+                .header(AUTHORIZATION, token)
 
                 .when()
                 .delete("/api/posts/1")
