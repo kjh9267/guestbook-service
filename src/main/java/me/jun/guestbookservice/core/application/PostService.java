@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.jun.guestbookservice.core.application.dto.*;
 import me.jun.guestbookservice.core.application.exception.PostNotFoundException;
+import me.jun.guestbookservice.core.domain.Writer;
 import me.jun.guestbookservice.core.domain.repository.PostRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -56,5 +60,21 @@ public class PostService {
         return requestMono
                 .map(request -> postRepository.findAllBy(request)).log()
                 .map(PostListResponse::of);
+    }
+
+    @KafkaListener(
+            topics = "member.delete",
+            groupId = "guestbook-service"
+    )
+    public void deleteAllPostByWriter(
+            @Payload Long writerId,
+            Acknowledgment acknowledgment
+    ) {
+        Writer writer = Writer.builder()
+                .value(writerId)
+                .build();
+
+        postRepository.deleteAllByWriter(writer);
+        acknowledgment.acknowledge();
     }
 }
