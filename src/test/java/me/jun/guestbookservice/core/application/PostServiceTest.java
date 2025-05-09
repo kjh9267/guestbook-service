@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.Optional;
 
 import static me.jun.guestbookservice.support.PostFixture.*;
+import static me.jun.guestbookservice.support.RedisFixture.POST_SIZE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,9 +32,16 @@ public class PostServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private RedisService redisService;
+
     @BeforeEach
     void setUp() {
-        postService = new PostService(postRepository);
+        postService = new PostService(
+                postRepository,
+                redisService,
+                POST_SIZE
+                );
     }
 
     @Test
@@ -43,8 +51,15 @@ public class PostServiceTest {
         given(postRepository.save(any()))
                 .willReturn(post());
 
+        doNothing()
+                .when(redisService)
+                .deletePostList();
+
         assertThat(postService.createPost(Mono.just(createPostRequest())).block())
                 .isEqualToComparingFieldByField(expected);
+
+        verify(redisService)
+                .deletePostList();
     }
 
     @Test
@@ -76,8 +91,15 @@ public class PostServiceTest {
         given(postRepository.findById(any()))
                 .willReturn(Optional.of(updatedPost()));
 
+        doNothing()
+                .when(redisService)
+                .deletePostList();
+
         assertThat(postService.updatePost(Mono.just(updatePostRequest())).block())
                 .isEqualToComparingFieldByField(expected);
+
+        verify(redisService)
+                .deletePostList();
     }
 
     @Test
@@ -97,11 +119,18 @@ public class PostServiceTest {
                 .when(postRepository)
                 .deleteById(any());
 
+        doNothing()
+                .when(redisService)
+                .deletePostList();
+
         postService.deletePost(Mono.just(deletePostRequest()))
                 .block();
 
         verify(postRepository)
                 .deleteById(deletePostRequest().getId());
+
+        verify(redisService)
+                .deletePostList();
     }
 
     @Test

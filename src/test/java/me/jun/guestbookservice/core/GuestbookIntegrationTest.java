@@ -4,16 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
+import redis.embedded.RedisServer;
 
 import static io.restassured.RestAssured.given;
 import static me.jun.guestbookservice.support.PostFixture.createPostRequest;
 import static me.jun.guestbookservice.support.PostFixture.updatePostRequest;
+import static me.jun.guestbookservice.support.RedisFixture.REDIS_PORT;
 import static me.jun.guestbookservice.support.TokenFixture.createToken;
 import static me.jun.guestbookservice.support.WriterFixture.WRITER_ID;
 import static org.hamcrest.Matchers.hasKey;
@@ -34,6 +37,8 @@ public class GuestbookIntegrationTest {
 
     private static String token;
 
+    private RedisServer redisServer;
+
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .create();
@@ -41,6 +46,13 @@ public class GuestbookIntegrationTest {
     @BeforeEach
     void setUp() {
         token = createToken(WRITER_ID, 30L);
+        redisServer = new RedisServer(REDIS_PORT);
+        redisServer.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        redisServer.stop();
     }
 
     @Test
